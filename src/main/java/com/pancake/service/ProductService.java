@@ -17,8 +17,11 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true)
-    public List<Product> findAll() {
-        return productRepository.findAll();
+    public List<Product> findByTerm(String filterTerm) {
+        if(filterTerm == null || filterTerm.isEmpty()) {
+            return productRepository.findAll();
+        }
+        return productRepository.searchByName(filterTerm);
     }
 
     @Transactional

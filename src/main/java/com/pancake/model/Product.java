@@ -8,11 +8,10 @@ import static lombok.AccessLevel.PROTECTED;
 
 @Getter
 @Entity
-@Table(name = "sku")
+@Table(name = "product")
 @NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(of = "id")
 public class Product {
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
