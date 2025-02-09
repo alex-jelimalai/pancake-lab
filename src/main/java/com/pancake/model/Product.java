@@ -4,12 +4,10 @@ package com.pancake.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import static lombok.AccessLevel.PROTECTED;
-
 @Getter
 @Entity
 @Table(name = "product")
-@NoArgsConstructor(access = PROTECTED)
+@NoArgsConstructor
 @EqualsAndHashCode(of = "id")
 public class Product {
 

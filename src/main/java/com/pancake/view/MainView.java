@@ -2,9 +2,10 @@ package com.pancake.view;
 
 import com.pancake.model.Product;
 import com.pancake.service.ProductService;
-import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -26,30 +27,78 @@ public class MainView extends VerticalLayout {
 
         this.grid = new Grid<>(Product.class);
         configureGrid();
-        configureFilter();
-
+        HorizontalLayout toolBar = getToolBar();
         productForm = new ProductForm();
+        productForm.addListener(ProductForm.SaveProductEvent.class, e -> {
+            productService.saveProduct(e.getProduct());
+            closeEditor();
+            updateList();
+        });
+
+        productForm.addListener(ProductForm.DeleteProductEvent.class, e -> {
+            productService.deleteProduct(e.getProduct());
+            closeEditor();
+            updateList();
+        });
+
+        productForm.addListener(ProductForm.CancelProductEvent.class, e -> {
+            closeEditor();
+        });
+
         Div content = new Div(grid, productForm);
         content.addClassName("content");
         content.setSizeFull();
 
-        add(filterText, content);
+        add(toolBar, content);
 
         updateList();
-
+        closeEditor();
     }
 
-    private void configureFilter() {
+
+    private void closeEditor() {
+        productForm.setProduct(null);
+        productForm.setVisible(false);
+        removeClassName("editing");
+    }
+
+    private HorizontalLayout getToolBar() {
         filterText.setPlaceholder("Filter by name");
         filterText.setClearButtonVisible(true);
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
         filterText.addValueChangeListener(e -> updateList());
+
+        Button addProductButton = new Button("Add Product");
+        addProductButton.addClickListener(c -> addProduct());
+
+        HorizontalLayout toolbar = new HorizontalLayout(filterText, addProductButton);
+        toolbar.addClassName("toolbar");
+        return toolbar;
+    }
+
+    private void addProduct() {
+        grid.asSingleSelect().clear();
+        editProduct(new Product());
     }
 
 
     private void configureGrid() {
         grid.setSizeFull();
         grid.setColumns("name", "price", "ingridients", "recipe");
+
+        grid.asSingleSelect().addValueChangeListener(e -> {
+            if (e.getValue() != null) {
+                editProduct(e.getValue());
+            } else {
+                closeEditor();
+            }
+        });
+    }
+
+    private void editProduct(Product product) {
+        productForm.setProduct(product);
+        productForm.setVisible(true);
+        addClassName("editing");
     }
 
     private void updateList() {
