@@ -25,18 +25,18 @@ public class Product {
     private String ingridients;
 
     @Setter
-    @Column(name = "recipe")
-    private String recipe;
+    @Column(name = "details")
+    private String details;
 
     @Setter
     @Column(name = "price")
     private double price;
 
     @Builder
-    public Product(String name, String ingridients, String recipe, double price) {
+    public Product(String name, String ingridients, String details, double price) {
         this.name = name;
         this.ingridients = ingridients;
-        this.recipe = recipe;
+        this.details = details;
         this.price = price;
     }
 }

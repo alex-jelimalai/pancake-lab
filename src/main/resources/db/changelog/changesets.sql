@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset Alex:create.product.orders.2
+--changeset Alex:create.product.orders.3
 drop table if exists product;
 drop table if exists orders;
 drop table if exists order_item;
@@ -10,7 +10,7 @@ create table product
     id INTEGER PRIMARY KEY,
     name        varchar(255)   not null,
     ingridients text           not null default '',
-    recipe      text           not null default '',
+    details      text           not null default '',
     price       decimal(10, 2) not null
 );
 
@@ -34,9 +34,9 @@ create table order_item
     price      double precision not null
 );
 
---changeset Alex:product.data.2
+--changeset Alex:product.data.3
 delete from product;
-INSERT INTO product (name, ingridients, recipe, price)
+INSERT INTO product (name, ingridients, details, price)
 VALUES ('Dark Chocolate Pancakes',
         'Flour, Cocoa Powder, Eggs, Milk, Sugar, Baking Powder, Butter, Dark Chocolate',
         'Prepare the batter with melted dark chocolate, cook until fluffy.',

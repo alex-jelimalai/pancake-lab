@@ -84,7 +84,7 @@ public class MainView extends VerticalLayout {
 
     private void configureGrid() {
         grid.setSizeFull();
-        grid.setColumns("name", "price", "ingridients", "recipe");
+        grid.setColumns("name", "price", "ingridients", "details");
 
         grid.asSingleSelect().addValueChangeListener(e -> {
             if (e.getValue() != null) {

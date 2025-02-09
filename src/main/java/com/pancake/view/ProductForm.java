@@ -22,7 +22,7 @@ public class ProductForm extends FormLayout {
     TextField name = new TextField("Product Name");
     NumberField price = new NumberField("Price");
     TextField ingridients = new TextField("Ingridients");
-    TextArea recipe = new TextArea("Recipe");
+    TextArea details = new TextArea("Details");
 
     Button save = new Button("Save");
     Button delete = new Button("Delete");
@@ -37,7 +37,7 @@ public class ProductForm extends FormLayout {
         name.setRequiredIndicatorVisible(true);
         ingridients.setRequiredIndicatorVisible(true);
         binder.bindInstanceFields(this);
-        add(name, price, ingridients, recipe, createButtonLayout());
+        add(name, price, ingridients, details, createButtonLayout());
     }
 
     public void setProduct(Product product) {
