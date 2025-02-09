@@ -5,19 +5,13 @@ import com.google.common.collect.ImmutableList;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static lombok.AccessLevel.PROTECTED;
-
-@Getter
 @Entity
 @Table(name = "orders")
-@NoArgsConstructor(access = PROTECTED)
 @EqualsAndHashCode(of = "id")
 public class Order {
 
@@ -37,7 +31,7 @@ public class Order {
     private Integer building;
     private Integer roomNo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = CascadeType.ALL)
     private List<OrderItem> items = new ArrayList<>();
 
     @Column(name = "created_at", updatable = false)

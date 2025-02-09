@@ -17,7 +17,7 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public List<Order> getOrders(GetOrderRequest getOrderRequest) {
-        throw new RuntimeException(" not implemented yet");
+        return orderRepository.findAll();
     }
 
     @Transactional

@@ -10,4 +10,5 @@ public class AddProductRequest {
     private String ingridients;
     private String recipe;
     private double price;
+
 }
