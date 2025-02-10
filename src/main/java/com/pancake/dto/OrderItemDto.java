@@ -12,7 +12,7 @@ public class OrderItemDto {
     private ProductDto product;
 
     private int quantity;
-    private double price;
 
+    private double price;
 
 }

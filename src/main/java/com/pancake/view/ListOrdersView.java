@@ -1,6 +1,9 @@
 package com.pancake.view;
 
 import com.pancake.dto.OrderDto;
+import com.pancake.dto.OrderItemDto;
+import com.pancake.model.OrderStatus;
+import com.pancake.model.OrderType;
 import com.pancake.service.OrderService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -11,6 +14,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Route(value = "orders", layout = MainLayout.class)
@@ -86,6 +92,7 @@ public class ListOrdersView extends VerticalLayout {
 
     private void configureGrid() {
         grid.setSizeFull();
+        grid.setColumns("orderType", "status", "building", "roomNo");
 
         grid.asSingleSelect().addValueChangeListener(e -> {
             if (e.getValue() != null) {

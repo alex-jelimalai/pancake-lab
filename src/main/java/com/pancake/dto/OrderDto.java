@@ -30,9 +30,4 @@ public class OrderDto {
         items.add(item);
     }
 
-    public List<OrderItemDto> getOrderItems() {
-        return ImmutableList.copyOf(items);
-    }
-
-
 }
