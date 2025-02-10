@@ -31,6 +31,16 @@ public class ListOrdersView extends VerticalLayout {
         this.grid = new Grid<>(OrderDto.class);
         configureGrid();
         HorizontalLayout toolBar = getToolBar();
+        orderForm = initOrderForm(orderService, productService);
+
+        add(toolBar, getContent());
+
+        updateList();
+        closeEditor();
+    }
+
+    private OrderForm initOrderForm(OrderService orderService, ProductService productService) {
+        final OrderForm orderForm;
         orderForm = new OrderForm(productService);
         orderForm.addListener(OrderForm.SaveOrderEvent.class, e -> {
             orderService.saveOrder(e.getOrder());
@@ -47,15 +57,14 @@ public class ListOrdersView extends VerticalLayout {
         orderForm.addListener(OrderForm.CancelOrderEvent.class, e -> {
             closeEditor();
         });
+        return orderForm;
+    }
 
+    private Div getContent() {
         Div content = new Div(grid, orderForm);
         content.addClassName("content");
         content.setSizeFull();
-
-        add(toolBar, content);
-
-        updateList();
-        closeEditor();
+        return content;
     }
 
 

@@ -51,7 +51,6 @@ public class OrderForm extends FormLayout {
         binder.bindInstanceFields(this);
         configureForm();
         configureOrderItemsGrid();
-
         add(
                 new VerticalLayout(
                         new HorizontalLayout(orderType, status),
@@ -96,28 +95,12 @@ public class OrderForm extends FormLayout {
 
         Dialog dialog = new Dialog();
         dialog.setWidth(800, Unit.PIXELS);
-        ComboBox<ProductDto> productComboBox = new ComboBox<>("Product");
-        productComboBox.setItems(productService.findByTerm(""));
-        productComboBox.setItemLabelGenerator(ProductDto::getName);
-        IntegerField quantityField = new IntegerField("Quantity");
-        quantityField.setValue(1);
-        quantityField.setMin(1);
-        quantityField.setMax(100);
-        TextField priceField = new TextField("Price");
-        priceField.setReadOnly(true);
-        TextArea ingridients = new TextArea("Ingridients");
-        quantityField.setSizeFull();
-        productComboBox.setSizeFull();
-        ingridients.setSizeFull();
-        priceField.setSizeFull();
+        IntegerField quantityField = initQuantityField();
+        TextField priceField = initPriceField();
 
-        productComboBox.addValueChangeListener(event -> {
-            ProductDto selectedProduct = event.getValue();
-            if (selectedProduct != null) {
-                double price = selectedProduct.getPrice() * quantityField.getValue();
-                priceField.setValue(String.valueOf(price));
-            }
-        });
+        ComboBox<ProductDto> productComboBox = initProductField(quantityField, priceField);
+
+        TextArea ingridients = initIngridientsField();
 
         Button saveButton = new Button("Save", e -> {
             if (productComboBox.getValue() != null) {
@@ -138,6 +121,43 @@ public class OrderForm extends FormLayout {
 
         dialog.add(new VerticalLayout(productComboBox, quantityField, priceField, ingridients, new HorizontalLayout(saveButton, cancelButton)));
         dialog.open();
+    }
+
+    private static TextArea initIngridientsField() {
+        TextArea ingridients = new TextArea("Ingridients");
+        ingridients.setSizeFull();
+        return ingridients;
+    }
+
+    private ComboBox<ProductDto> initProductField(IntegerField quantityField, TextField priceField) {
+        ComboBox<ProductDto> productComboBox = new ComboBox<>("Product");
+        productComboBox.setItems(productService.findByTerm(""));
+        productComboBox.setItemLabelGenerator(ProductDto::getName);
+        productComboBox.setSizeFull();
+        productComboBox.addValueChangeListener(event -> {
+            ProductDto selectedProduct = event.getValue();
+            if (selectedProduct != null) {
+                double price = selectedProduct.getPrice() * quantityField.getValue();
+                priceField.setValue(String.valueOf(price));
+            }
+        });
+        return productComboBox;
+    }
+
+    private TextField initPriceField() {
+        TextField priceField = new TextField("Price");
+        priceField.setReadOnly(true);
+        priceField.setSizeFull();
+        return priceField;
+    }
+
+    private IntegerField initQuantityField() {
+        IntegerField quantityField = new IntegerField("Quantity");
+        quantityField.setValue(1);
+        quantityField.setMin(1);
+        quantityField.setMax(100);
+        quantityField.setSizeFull();
+        return quantityField;
     }
 
     private void removeOrderItem(OrderItemDto item) {
