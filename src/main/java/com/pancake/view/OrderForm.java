@@ -1,14 +1,18 @@
 package com.pancake.view;
 
 import com.pancake.dto.OrderDto;
+import com.pancake.model.OrderStatus;
+import com.pancake.model.OrderType;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
@@ -16,17 +20,29 @@ import lombok.Getter;
 
 public class OrderForm extends FormLayout {
 
+    private final IntegerField building = new IntegerField("Building");
+    private final IntegerField roomNo = new IntegerField("Room");
+    private final ComboBox<OrderType> orderType = new ComboBox<>("Order Type");
+    private final ComboBox<OrderStatus> status = new ComboBox<>("Order Status");
 
-    Button save = new Button("Save");
-    Button delete = new Button("Delete");
-    Button cancel = new Button("Cancel");
+    private final Button save = new Button("Save");
+    private final Button delete = new Button("Delete");
+    private final Button cancel = new Button("Cancel");
 
-    Binder<OrderDto> binder = new BeanValidationBinder<>(OrderDto.class);
+    private Binder<OrderDto> binder = new BeanValidationBinder<>(OrderDto.class);
 
     public OrderForm() {
         addClassName("order-form");
-//        binder.bindInstanceFields(this);//todo
-        add(createButtonLayout());
+        binder.bindInstanceFields(this);
+        orderType.setItems(OrderType.values());
+        status.setItems(OrderStatus.values());
+        orderType.setRequired(true);
+        status.setRequired(true);
+        orderType.addValueChangeListener(event -> {
+            building.setRequired(!OrderType.DISCIPLE.equals(event.getValue()));
+            roomNo.setRequired(!OrderType.DISCIPLE.equals(event.getValue()));
+        });
+        add(orderType, status, building, roomNo, createButtonLayout());
     }
 
     public void setOrder(OrderDto order) {
