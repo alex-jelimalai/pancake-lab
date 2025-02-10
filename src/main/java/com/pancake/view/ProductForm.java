@@ -1,6 +1,6 @@
 package com.pancake.view;
 
-import com.pancake.model.Product;
+import com.pancake.dto.ProductDto;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -19,14 +19,14 @@ import lombok.Getter;
 
 public class ProductForm extends FormLayout {
 
-    private final TextField name = new TextField("Product Name");
+    private final TextField name = new TextField("ProductDto Name");
     private final NumberField price = new NumberField("Price");
     private final TextField ingridients = new TextField("Ingridients");
     private final TextArea details = new TextArea("Details");
     private final Button save = new Button("Save");
     private final Button delete = new Button("Delete");
     private final Button cancel = new Button("Cancel");
-    private final Binder<Product> binder = new BeanValidationBinder<>(Product.class);
+    private final Binder<ProductDto> binder = new BeanValidationBinder<>(ProductDto.class);
 
     public ProductForm() {
         addClassName("product-form");
@@ -38,7 +38,7 @@ public class ProductForm extends FormLayout {
         add(name, price, ingridients, details, createButtonLayout());
     }
 
-    public void setProduct(Product product) {
+    public void setProduct(ProductDto product) {
         binder.setBean(product);
     }
 
@@ -72,9 +72,9 @@ public class ProductForm extends FormLayout {
     public static abstract class ProductFormEvent extends ComponentEvent<ProductForm> {
 
         @Getter
-        private final Product product;
+        private final ProductDto product;
 
-        public ProductFormEvent(ProductForm source, Product product) {
+        public ProductFormEvent(ProductForm source, ProductDto product) {
             super(source, false);
             this.product = product;
         }
@@ -82,19 +82,19 @@ public class ProductForm extends FormLayout {
     }
 
     public static class SaveProductEvent extends ProductFormEvent {
-        public SaveProductEvent(ProductForm source, Product product) {
+        public SaveProductEvent(ProductForm source, ProductDto product) {
             super(source, product);
         }
     }
 
     public static class DeleteProductEvent extends ProductFormEvent {
-        public DeleteProductEvent(ProductForm source, Product product) {
+        public DeleteProductEvent(ProductForm source, ProductDto product) {
             super(source, product);
         }
     }
 
     public static class CancelProductEvent extends ProductFormEvent {
-        public CancelProductEvent(ProductForm source, Product product) {
+        public CancelProductEvent(ProductForm source, ProductDto product) {
             super(source, product);
         }
     }

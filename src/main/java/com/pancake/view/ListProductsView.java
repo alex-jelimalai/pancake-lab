@@ -1,6 +1,6 @@
 package com.pancake.view;
 
-import com.pancake.model.Product;
+import com.pancake.dto.ProductDto;
 import com.pancake.service.ProductService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -17,7 +17,7 @@ import com.vaadin.flow.router.Route;
 @PageTitle("Products")
 public class ListProductsView extends VerticalLayout {
 
-    private final Grid<Product> grid;
+    private final Grid<ProductDto> grid;
     private final ProductService productService;
     private final TextField filterText = new TextField();
     private final ProductForm productForm;
@@ -27,7 +27,7 @@ public class ListProductsView extends VerticalLayout {
         addClassName("list-view");
         setSizeFull();
 
-        this.grid = new Grid<>(Product.class);
+        this.grid = new Grid<>(ProductDto.class);
         configureGrid();
         HorizontalLayout toolBar = getToolBar();
         productForm = new ProductForm();
@@ -38,7 +38,7 @@ public class ListProductsView extends VerticalLayout {
         });
 
         productForm.addListener(ProductForm.DeleteProductEvent.class, e -> {
-            productService.deleteProduct(e.getProduct());
+            productService.deleteProduct(e.getProduct().getId());
             closeEditor();
             updateList();
         });
@@ -80,7 +80,7 @@ public class ListProductsView extends VerticalLayout {
 
     private void addProduct() {
         grid.asSingleSelect().clear();
-        editProduct(new Product());
+        editProduct(new ProductDto());
     }
 
 
@@ -97,7 +97,7 @@ public class ListProductsView extends VerticalLayout {
         });
     }
 
-    private void editProduct(Product product) {
+    private void editProduct(ProductDto product) {
         productForm.setProduct(product);
         productForm.setVisible(true);
         addClassName("editing");

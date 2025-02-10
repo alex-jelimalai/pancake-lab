@@ -1,6 +1,6 @@
 package com.pancake.view;
 
-import com.pancake.model.Order;
+import com.pancake.dto.OrderDto;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -9,9 +9,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.textfield.NumberField;
-import com.vaadin.flow.component.textfield.TextArea;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
@@ -24,15 +21,15 @@ public class OrderForm extends FormLayout {
     Button delete = new Button("Delete");
     Button cancel = new Button("Cancel");
 
-    Binder<Order> binder = new BeanValidationBinder<>(Order.class);
+    Binder<OrderDto> binder = new BeanValidationBinder<>(OrderDto.class);
 
     public OrderForm() {
         addClassName("order-form");
 //        binder.bindInstanceFields(this);//todo
-        add( createButtonLayout());
+        add(createButtonLayout());
     }
 
-    public void setOrder(Order order) {
+    public void setOrder(OrderDto order) {
         binder.setBean(order);
     }
 
@@ -66,9 +63,9 @@ public class OrderForm extends FormLayout {
     public static abstract class OrderFormEvent extends ComponentEvent<OrderForm> {
 
         @Getter
-        private final Order order;
+        private final OrderDto order;
 
-        public OrderFormEvent(OrderForm source, Order order) {
+        public OrderFormEvent(OrderForm source, OrderDto order) {
             super(source, false);
             this.order = order;
         }
@@ -76,19 +73,19 @@ public class OrderForm extends FormLayout {
     }
 
     public static class SaveOrderEvent extends OrderFormEvent {
-        public SaveOrderEvent(OrderForm source, Order order) {
+        public SaveOrderEvent(OrderForm source, OrderDto order) {
             super(source, order);
         }
     }
 
     public static class DeleteOrderEvent extends OrderFormEvent {
-        public DeleteOrderEvent(OrderForm source, Order order) {
+        public DeleteOrderEvent(OrderForm source, OrderDto order) {
             super(source, order);
         }
     }
 
     public static class CancelOrderEvent extends OrderFormEvent {
-        public CancelOrderEvent(OrderForm source, Order order) {
+        public CancelOrderEvent(OrderForm source, OrderDto order) {
             super(source, order);
         }
     }

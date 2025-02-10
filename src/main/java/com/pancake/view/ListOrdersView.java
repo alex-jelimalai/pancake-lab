@@ -1,9 +1,6 @@
 package com.pancake.view;
 
-import com.pancake.model.Order;
-import com.pancake.model.OrderItem;
-import com.pancake.model.OrderStatus;
-import com.pancake.model.OrderType;
+import com.pancake.dto.OrderDto;
 import com.pancake.service.OrderService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -14,18 +11,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import jakarta.persistence.*;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Route(value = "orders", layout = MainLayout.class)
 @PageTitle("Orders")
 public class ListOrdersView extends VerticalLayout {
 
-    private final Grid<Order> grid;
+    private final Grid<OrderDto> grid;
     private final OrderService orderService;
     private final TextField filterText = new TextField();
     private final OrderForm orderForm;
@@ -35,7 +27,7 @@ public class ListOrdersView extends VerticalLayout {
         addClassName("list-view");
         setSizeFull();
 
-        this.grid = new Grid<>(Order.class);
+        this.grid = new Grid<>(OrderDto.class);
         configureGrid();
         HorizontalLayout toolBar = getToolBar();
         orderForm = new OrderForm();
@@ -46,7 +38,7 @@ public class ListOrdersView extends VerticalLayout {
         });
 
         orderForm.addListener(OrderForm.DeleteOrderEvent.class, e -> {
-            orderService.cancelOrder(e.getOrder());
+            orderService.cancelOrder(e.getOrder().getId());
             closeEditor();
             updateList();
         });
@@ -88,7 +80,7 @@ public class ListOrdersView extends VerticalLayout {
 
     private void addOrder() {
         grid.asSingleSelect().clear();
-        editOrder(new Order());
+        editOrder(new OrderDto());
     }
 
 
@@ -104,7 +96,7 @@ public class ListOrdersView extends VerticalLayout {
         });
     }
 
-    private void editOrder(Order order) {
+    private void editOrder(OrderDto order) {
         orderForm.setOrder(order);
         orderForm.setVisible(true);
         addClassName("editing");

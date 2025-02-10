@@ -3,42 +3,40 @@ package com.pancake.model;
 
 import com.google.common.collect.ImmutableList;
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Entity
 @Table(name = "orders")
 @EqualsAndHashCode(of = "id")
 @NoArgsConstructor
+@Getter
 public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "order_type", nullable = false, unique = false)
     private OrderType orderType;
 
-
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OrderStatus status;
-
+    @Setter
     private Integer building;
+    @Setter
     private Integer roomNo;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = CascadeType.ALL)
-    private List<OrderItem> items = new ArrayList<>();
-
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
-
+    private final List<OrderItem> items = new ArrayList<>();
 
     public void addItem(OrderItem item) {
         items.add(item);
@@ -46,6 +44,11 @@ public class Order {
 
     public List<OrderItem> getOrderItems() {
         return ImmutableList.copyOf(items);
+    }
+
+    public void setOrderItems(List<OrderItem> items) {
+        this.items.clear();
+        this.items.addAll(items);
     }
 
     @Builder
