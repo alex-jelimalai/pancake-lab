@@ -1,10 +1,8 @@
 package com.pancake.view;
 
 import com.pancake.dto.OrderDto;
-import com.pancake.dto.OrderItemDto;
-import com.pancake.model.OrderStatus;
-import com.pancake.model.OrderType;
 import com.pancake.service.OrderService;
+import com.pancake.service.ProductService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -14,9 +12,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 @Route(value = "orders", layout = MainLayout.class)
@@ -28,7 +23,7 @@ public class ListOrdersView extends VerticalLayout {
     private final TextField filterText = new TextField();
     private final OrderForm orderForm;
 
-    public ListOrdersView(OrderService orderService) {
+    public ListOrdersView(OrderService orderService, ProductService productService) {
         this.orderService = orderService;
         addClassName("list-view");
         setSizeFull();
@@ -36,7 +31,7 @@ public class ListOrdersView extends VerticalLayout {
         this.grid = new Grid<>(OrderDto.class);
         configureGrid();
         HorizontalLayout toolBar = getToolBar();
-        orderForm = new OrderForm();
+        orderForm = new OrderForm(productService);
         orderForm.addListener(OrderForm.SaveOrderEvent.class, e -> {
             orderService.saveOrder(e.getOrder());
             closeEditor();

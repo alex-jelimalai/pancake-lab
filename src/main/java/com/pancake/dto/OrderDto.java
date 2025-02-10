@@ -13,15 +13,14 @@ import java.util.List;
 @Getter
 public class OrderDto {
 
-
     private Long id;
 
     private OrderType orderType;
 
-
     private OrderStatus status;
 
     private Integer building;
+
     private Integer roomNo;
 
     private final List<OrderItemDto> items = new ArrayList<>();
