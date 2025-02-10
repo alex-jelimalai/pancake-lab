@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -13,10 +15,18 @@ public class OrderService {
 
 
     @Transactional
-    public void cancelOrder(Long orderId) {
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("order not found"));
-        order.cancel();
+    public Order saveOrder(Order order) {
+        return orderRepository.save(order);
+    }
+
+    @Transactional
+    public void cancelOrder(Order order) {
+        orderRepository.delete(order);
         orderRepository.save(order);
     }
 
+    public List<Order> findAll() {
+        List<Order> orders = orderRepository.findAll();
+        return orders;
+    }
 }

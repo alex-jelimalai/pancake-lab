@@ -19,16 +19,14 @@ import lombok.Getter;
 
 public class ProductForm extends FormLayout {
 
-    TextField name = new TextField("Product Name");
-    NumberField price = new NumberField("Price");
-    TextField ingridients = new TextField("Ingridients");
-    TextArea details = new TextArea("Details");
-
-    Button save = new Button("Save");
-    Button delete = new Button("Delete");
-    Button cancel = new Button("Cancel");
-
-    Binder<Product> binder = new BeanValidationBinder<>(Product.class);
+    private final TextField name = new TextField("Product Name");
+    private final NumberField price = new NumberField("Price");
+    private final TextField ingridients = new TextField("Ingridients");
+    private final TextArea details = new TextArea("Details");
+    private final Button save = new Button("Save");
+    private final Button delete = new Button("Delete");
+    private final Button cancel = new Button("Cancel");
+    private final Binder<Product> binder = new BeanValidationBinder<>(Product.class);
 
     public ProductForm() {
         addClassName("product-form");

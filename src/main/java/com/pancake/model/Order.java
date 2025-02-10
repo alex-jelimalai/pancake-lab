@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -13,6 +14,7 @@ import java.util.List;
 @Entity
 @Table(name = "orders")
 @EqualsAndHashCode(of = "id")
+@NoArgsConstructor
 public class Order {
 
     @Id

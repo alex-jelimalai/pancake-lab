@@ -1,7 +1,10 @@
 package com.pancake.view;
 
-import com.pancake.model.Product;
-import com.pancake.service.ProductService;
+import com.pancake.model.Order;
+import com.pancake.model.OrderItem;
+import com.pancake.model.OrderStatus;
+import com.pancake.model.OrderType;
+import com.pancake.service.OrderService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -9,43 +12,50 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 
-@Route
-public class MainView extends VerticalLayout {
+@Route(value = "orders", layout = MainLayout.class)
+@PageTitle("Orders")
+public class ListOrdersView extends VerticalLayout {
 
-    private final Grid<Product> grid;
-    private final ProductService productService;
+    private final Grid<Order> grid;
+    private final OrderService orderService;
     private final TextField filterText = new TextField();
-    private final ProductForm productForm;
+    private final OrderForm orderForm;
 
-    public MainView(ProductService productService) {
-        this.productService = productService;
+    public ListOrdersView(OrderService orderService) {
+        this.orderService = orderService;
         addClassName("list-view");
         setSizeFull();
 
-        this.grid = new Grid<>(Product.class);
+        this.grid = new Grid<>(Order.class);
         configureGrid();
         HorizontalLayout toolBar = getToolBar();
-        productForm = new ProductForm();
-        productForm.addListener(ProductForm.SaveProductEvent.class, e -> {
-            productService.saveProduct(e.getProduct());
+        orderForm = new OrderForm();
+        orderForm.addListener(OrderForm.SaveOrderEvent.class, e -> {
+            orderService.saveOrder(e.getOrder());
             closeEditor();
             updateList();
         });
 
-        productForm.addListener(ProductForm.DeleteProductEvent.class, e -> {
-            productService.deleteProduct(e.getProduct());
+        orderForm.addListener(OrderForm.DeleteOrderEvent.class, e -> {
+            orderService.cancelOrder(e.getOrder());
             closeEditor();
             updateList();
         });
 
-        productForm.addListener(ProductForm.CancelProductEvent.class, e -> {
+        orderForm.addListener(OrderForm.CancelOrderEvent.class, e -> {
             closeEditor();
         });
 
-        Div content = new Div(grid, productForm);
+        Div content = new Div(grid, orderForm);
         content.addClassName("content");
         content.setSizeFull();
 
@@ -57,8 +67,8 @@ public class MainView extends VerticalLayout {
 
 
     private void closeEditor() {
-        productForm.setProduct(null);
-        productForm.setVisible(false);
+        orderForm.setOrder(null);
+        orderForm.setVisible(false);
         removeClassName("editing");
     }
 
@@ -68,42 +78,40 @@ public class MainView extends VerticalLayout {
         filterText.setValueChangeMode(ValueChangeMode.LAZY);
         filterText.addValueChangeListener(e -> updateList());
 
-        Button addProductButton = new Button("Add Product");
-        addProductButton.addClickListener(c -> addProduct());
+        Button addOrderButton = new Button("Add Order");
+        addOrderButton.addClickListener(c -> addOrder());
 
-        HorizontalLayout toolbar = new HorizontalLayout(filterText, addProductButton);
+        HorizontalLayout toolbar = new HorizontalLayout(filterText, addOrderButton);
         toolbar.addClassName("toolbar");
         return toolbar;
     }
 
-    private void addProduct() {
+    private void addOrder() {
         grid.asSingleSelect().clear();
-        editProduct(new Product());
+        editOrder(new Order());
     }
 
 
     private void configureGrid() {
         grid.setSizeFull();
-        grid.setColumns("name", "price", "ingridients", "details");
 
         grid.asSingleSelect().addValueChangeListener(e -> {
             if (e.getValue() != null) {
-                editProduct(e.getValue());
+                editOrder(e.getValue());
             } else {
                 closeEditor();
             }
         });
     }
 
-    private void editProduct(Product product) {
-        productForm.setProduct(product);
-        productForm.setVisible(true);
+    private void editOrder(Order order) {
+        orderForm.setOrder(order);
+        orderForm.setVisible(true);
         addClassName("editing");
     }
 
     private void updateList() {
-        String filterTerm = filterText.getValue();
-        grid.setItems(productService.findByTerm(filterTerm));
+        grid.setItems(orderService.findAll());
     }
 
 
