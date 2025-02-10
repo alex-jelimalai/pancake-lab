@@ -1,19 +1,19 @@
 package com.pancake.view;
 
 import com.pancake.dto.OrderDto;
+import com.pancake.dto.OrderItemDto;
 import com.pancake.dto.ProductDto;
 import com.pancake.model.OrderStatus;
 import com.pancake.model.OrderType;
 import com.pancake.service.ProductService;
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEvent;
-import com.vaadin.flow.component.ComponentEventListener;
-import com.vaadin.flow.component.Key;
+import com.vaadin.flow.component.*;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.dataview.GridListDataView;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
@@ -23,6 +23,8 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.shared.Registration;
 import lombok.Getter;
+
+import java.util.Optional;
 
 public class OrderForm extends FormLayout {
     private final ProductService productService;
@@ -35,32 +37,121 @@ public class OrderForm extends FormLayout {
     private final Button delete = new Button("Delete");
     private final Button cancel = new Button("Cancel");
 
-    private final VerticalLayout items = new VerticalLayout();
-    private final Button addItemButton = new Button("Add Item");
+    private final Grid<OrderItemDto> orderItemsGrid = new Grid<>(OrderItemDto.class);
+    private GridListDataView<OrderItemDto> orderItemsDataView;
+    private final Button addItemButton = new Button("➕ Add Item");
 
-
-    private Binder<OrderDto> binder = new BeanValidationBinder<>(OrderDto.class);
+    private final Binder<OrderDto> binder = new BeanValidationBinder<>(OrderDto.class);
+    private OrderDto order;
 
     public OrderForm(ProductService productService) {
         this.productService = productService;
         addClassName("order-form");
 
         binder.bindInstanceFields(this);
+        configureForm();
+        configureOrderItemsGrid();
+
+        add(
+                new VerticalLayout(
+                        new HorizontalLayout(orderType, status),
+                        new HorizontalLayout(building, roomNo),
+                        orderItemsGrid,
+                        addItemButton,
+                        createButtonLayout()
+                )
+        );
+    }
+
+    private void configureForm() {
         orderType.setItems(OrderType.values());
         status.setItems(OrderStatus.values());
         orderType.setRequired(true);
         status.setRequired(true);
+
         orderType.addValueChangeListener(event -> {
-            building.setRequired(!OrderType.DISCIPLE.equals(event.getValue()));
-            roomNo.setRequired(!OrderType.DISCIPLE.equals(event.getValue()));
+            boolean isDisciple = OrderType.DISCIPLE.equals(event.getValue());
+            building.setRequired(!isDisciple);
+            roomNo.setRequired(!isDisciple);
         });
-        addItemButton.addClickListener(e -> addOrderItemRow());
-        items.setSizeFull();
-        add(new VerticalLayout(new HorizontalLayout(orderType, status), new HorizontalLayout(building, roomNo), items, addItemButton, createButtonLayout()));
+
+        addItemButton.addClickListener(e -> addOrderItem());
+    }
+
+    private void configureOrderItemsGrid() {
+        orderItemsGrid.setColumns();
+        orderItemsGrid.addColumn(item -> Optional.ofNullable(item.getProduct()).map(p -> p.getName()).orElse("")).setHeader("Product");
+        orderItemsGrid.addColumn(OrderItemDto::getQuantity).setHeader("Quantity");
+        orderItemsGrid.addColumn(OrderItemDto::getPrice).setHeader("Price");
+
+        orderItemsGrid.addComponentColumn(item -> {
+            Button removeButton = new Button("X", e -> removeOrderItem(item));
+            removeButton.getStyle().set("color", "red");
+            return removeButton;
+        }).setHeader("Actions");
+    }
+
+    private void addOrderItem() {
+        OrderItemDto newItem = new OrderItemDto();
+
+        Dialog dialog = new Dialog();
+        dialog.setWidth(800, Unit.PIXELS);
+        ComboBox<ProductDto> productComboBox = new ComboBox<>("Product");
+        productComboBox.setItems(productService.findByTerm(""));
+        productComboBox.setItemLabelGenerator(ProductDto::getName);
+        IntegerField quantityField = new IntegerField("Quantity");
+        quantityField.setValue(1);
+        quantityField.setMin(1);
+        quantityField.setMax(100);
+        TextField priceField = new TextField("Price");
+        priceField.setReadOnly(true);
+        TextArea ingridients = new TextArea("Ingridients");
+        quantityField.setSizeFull();
+        productComboBox.setSizeFull();
+        ingridients.setSizeFull();
+        priceField.setSizeFull();
+
+        productComboBox.addValueChangeListener(event -> {
+            ProductDto selectedProduct = event.getValue();
+            if (selectedProduct != null) {
+                double price = selectedProduct.getPrice() * quantityField.getValue();
+                priceField.setValue(String.valueOf(price));
+            }
+        });
+
+        Button saveButton = new Button("Save", e -> {
+            if (productComboBox.getValue() != null) {
+                newItem.setProduct(productComboBox.getValue());
+                newItem.setQuantity(quantityField.getValue());
+                newItem.setPrice(Double.parseDouble(priceField.getValue()));
+
+                order.getItems().add(newItem);
+                orderItemsDataView.refreshAll();
+                dialog.close();
+            }
+        });
+
+
+        Button cancelButton = new Button("Cancel", e -> {
+            dialog.close();
+        });
+
+        dialog.add(new VerticalLayout(productComboBox, quantityField, priceField, ingridients, new HorizontalLayout(saveButton, cancelButton)));
+        dialog.open();
+    }
+
+    private void removeOrderItem(OrderItemDto item) {
+        order.getItems().remove(item);
+        orderItemsDataView.refreshAll();
     }
 
     public void setOrder(OrderDto order) {
+        this.order = order;
         binder.setBean(order);
+
+        if (order != null) {
+            orderItemsDataView = orderItemsGrid.setItems(order.getItems());
+        }
     }
 
     private Component createButtonLayout() {
@@ -79,37 +170,6 @@ public class OrderForm extends FormLayout {
         return new HorizontalLayout(save, delete, cancel);
     }
 
-
-    private void addOrderItemRow() {
-        HorizontalLayout item = new HorizontalLayout();
-
-        ComboBox<ProductDto> product = new ComboBox<>("Product");
-        product.setItems(productService.findByTerm(""));
-        product.setItemLabelGenerator(ProductDto::getName);
-
-        IntegerField quantityField = new IntegerField("Quantity");
-        quantityField.setMin(1);
-        quantityField.setValue(1);
-
-        TextField priceField = new TextField("Price");
-        priceField.setReadOnly(true);
-
-        TextArea ingridients = new TextArea("Ingridients");
-        ingridients.setSizeFull();
-        product.addValueChangeListener(event -> {
-            ProductDto selectedProduct = event.getValue();
-            if (selectedProduct != null) {
-                priceField.setValue(String.valueOf(selectedProduct.getPrice() * quantityField.getValue()));
-            }
-        });
-
-        Button removeButton = new Button("Remove", e -> items.remove(item));
-        item.setVerticalComponentAlignment(FlexComponent.Alignment.END, removeButton);
-
-        item.add(new VerticalLayout(new HorizontalLayout(product, quantityField, priceField, removeButton), ingridients));
-        items.add(item);
-    }
-
     private void validateAndSave() {
         if (binder.isValid()) {
             fireEvent(new SaveOrderEvent(this, binder.getBean()));
@@ -120,9 +180,7 @@ public class OrderForm extends FormLayout {
         return getEventBus().addListener(eventType, listener);
     }
 
-
     public static abstract class OrderFormEvent extends ComponentEvent<OrderForm> {
-
         @Getter
         private final OrderDto order;
 
@@ -130,7 +188,6 @@ public class OrderForm extends FormLayout {
             super(source, false);
             this.order = order;
         }
-
     }
 
     public static class SaveOrderEvent extends OrderFormEvent {
@@ -150,5 +207,4 @@ public class OrderForm extends FormLayout {
             super(source, order);
         }
     }
-
 }

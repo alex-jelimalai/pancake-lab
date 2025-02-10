@@ -1,6 +1,5 @@
 package com.pancake.dto;
 
-import com.google.common.collect.ImmutableList;
 import com.pancake.model.OrderStatus;
 import com.pancake.model.OrderType;
 import lombok.Getter;
@@ -23,7 +22,12 @@ public class OrderDto {
 
     private Integer roomNo;
 
-    private final List<OrderItemDto> items = new ArrayList<>();
+
+    public Double getTotal$() {
+        return getItems().stream().mapToDouble(s -> s.getQuantity() * s.getPrice()).sum();
+    }
+
+    private List<OrderItemDto> items = new ArrayList<>();
 
     public void addItem(OrderItemDto item) {
         items.add(item);

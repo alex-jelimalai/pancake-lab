@@ -4,10 +4,8 @@ package com.pancake.model;
 import com.google.common.collect.ImmutableList;
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -35,12 +33,8 @@ public class Order {
     @Setter
     private Integer roomNo;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private final List<OrderItem> items = new ArrayList<>();
-
-    public void addItem(OrderItem item) {
-        items.add(item);
-    }
 
     public List<OrderItem> getOrderItems() {
         return ImmutableList.copyOf(items);

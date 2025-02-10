@@ -87,7 +87,7 @@ public class ListOrdersView extends VerticalLayout {
 
     private void configureGrid() {
         grid.setSizeFull();
-        grid.setColumns("orderType", "status", "building", "roomNo");
+        grid.setColumns("orderType", "status", "building", "roomNo", "total$");
 
         grid.asSingleSelect().addValueChangeListener(e -> {
             if (e.getValue() != null) {

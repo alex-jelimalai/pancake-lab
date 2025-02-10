@@ -36,7 +36,7 @@ public class OrderService {
                 OrderItem.builder()
                         .order(order)
                         .price(i.getPrice())
-                        .product(productRepository.getReferenceById(i.getProduct().getId()))
+                        .product(productRepository.findById(i.getProduct().getId()).orElseThrow())
                         .quantity(i.getQuantity())
                         .build()
         ).collect(Collectors.toList()));

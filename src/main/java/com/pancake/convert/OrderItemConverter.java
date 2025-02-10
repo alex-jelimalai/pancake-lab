@@ -1,15 +1,15 @@
 package com.pancake.convert;
 
 import com.pancake.dto.OrderItemDto;
-import com.pancake.dto.ProductDto;
 import com.pancake.model.OrderItem;
-import com.pancake.model.Product;
+import lombok.RequiredArgsConstructor;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class OrderItemConverter implements Converter<OrderItem, OrderItemDto> {
-
+    private final ProductConverter productConverter;
 
     @Override
     public OrderItemDto convert(OrderItem source) {
@@ -17,6 +17,7 @@ public class OrderItemConverter implements Converter<OrderItem, OrderItemDto> {
         dto.setId(source.getId());
         dto.setPrice(source.getPrice());
         dto.setQuantity(source.getQuantity());
+        dto.setProduct(productConverter.convert(source.getProduct()));
         return dto;
     }
 }
