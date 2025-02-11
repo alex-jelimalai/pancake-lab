@@ -24,7 +24,7 @@ public class OrderService {
     public OrderDto saveOrder(OrderDto orderDto) {
         Order order;
         if (orderDto.getId() != null) {
-            order = orderRepository.findById(orderDto.getId()).orElseThrow();
+            order = orderRepository.findById(orderDto.getId()).orElseThrow(() -> new IllegalArgumentException("Order not found"));
         } else {
             order = new Order();
         }
@@ -36,7 +36,7 @@ public class OrderService {
                 OrderItem.builder()
                         .order(order)
                         .price(i.getPrice())
-                        .product(productRepository.findById(i.getProduct().getId()).orElseThrow())
+                        .product(productRepository.findById(i.getProduct().getId()).orElseThrow(() -> new IllegalArgumentException("Product not found")))
                         .quantity(i.getQuantity())
                         .build()
         ).collect(Collectors.toList()));
@@ -44,8 +44,10 @@ public class OrderService {
     }
 
     @Transactional
-    public void cancelOrder(Long orderId) {
-        orderRepository.deleteById(orderId);
+    public void deleteOrder(Long orderId) {
+        if (orderRepository.existsById(orderId)) {
+            orderRepository.deleteById(orderId);
+        }
     }
 
     @Transactional(readOnly = true)

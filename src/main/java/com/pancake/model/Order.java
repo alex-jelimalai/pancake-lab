@@ -17,11 +17,12 @@ public class Order {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Setter
     private Long id;
 
     @Setter
     @Enumerated(EnumType.STRING)
-    @Column(name = "order_type", nullable = false, unique = false)
+    @Column(name = "order_type", nullable = false)
     private OrderType orderType;
 
     @Setter
@@ -53,7 +54,4 @@ public class Order {
         this.roomNo = roomNo;
     }
 
-    public void cancel() {
-        status = OrderStatus.CANCELED;
-    }
 }

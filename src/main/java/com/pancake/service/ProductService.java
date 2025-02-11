@@ -25,7 +25,6 @@ public class ProductService {
         } else {
             result = productRepository.searchByName(filterTerm);
         }
-        System.out.println(result.stream().map(s -> s.getId()).collect(Collectors.toList()));
         return result.stream().map(product -> conversionService.convert(product, ProductDto.class)).collect(Collectors.toList());
     }
 
@@ -36,18 +35,21 @@ public class ProductService {
         if (productDto.getId() == null) {
             product = new Product();
         } else {
-            product = productRepository.findById(productDto.getId()).orElseThrow();
+            product = productRepository.findById(productDto.getId()).orElseThrow(() -> new IllegalArgumentException(("Product Not Found")));
         }
         product.setName(productDto.getName());
         product.setPrice(productDto.getPrice());
         product.setDetails(productDto.getDetails());
         product.setIngridients(productDto.getIngridients());
+        product = productRepository.save(product);
         return conversionService.convert(product, ProductDto.class);
     }
 
 
     @Transactional
     public void deleteProduct(Long productId) {
-        productRepository.deleteById(productId);
+        if (productRepository.existsById(productId)) {
+            productRepository.deleteById(productId);
+        }
     }
 }

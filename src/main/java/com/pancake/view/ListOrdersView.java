@@ -49,14 +49,12 @@ public class ListOrdersView extends VerticalLayout {
         });
 
         orderForm.addListener(OrderForm.DeleteOrderEvent.class, e -> {
-            orderService.cancelOrder(e.getOrder().getId());
+            orderService.deleteOrder(e.getOrder().getId());
             closeEditor();
             updateList();
         });
 
-        orderForm.addListener(OrderForm.CancelOrderEvent.class, e -> {
-            closeEditor();
-        });
+        orderForm.addListener(OrderForm.CancelOrderEvent.class, e -> closeEditor());
         return orderForm;
     }
 
