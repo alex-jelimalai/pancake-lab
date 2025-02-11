@@ -48,9 +48,9 @@ public class OrderForm extends FormLayout {
         this.productService = productService;
         addClassName("order-form");
 
-        binder.bindInstanceFields(this);
         configureForm();
         configureOrderItemsGrid();
+
         add(
                 new VerticalLayout(
                         new HorizontalLayout(orderType, status),
@@ -60,18 +60,25 @@ public class OrderForm extends FormLayout {
                         createButtonLayout()
                 )
         );
+        binder.bindInstanceFields(this);
     }
 
     private void configureForm() {
         orderType.setItems(OrderType.values());
         status.setItems(OrderStatus.values());
-        orderType.setRequired(true);
-        status.setRequired(true);
+        orderType.setRequiredIndicatorVisible(true);
+        status.setRequiredIndicatorVisible(true);
+        binder.forField(orderType)
+                .asRequired("Order Type is required")
+                .bind(OrderDto::getOrderType, OrderDto::setOrderType);
 
+        binder.forField(status)
+                .asRequired("Order Status is required")
+                .bind(OrderDto::getStatus, OrderDto::setStatus);
         orderType.addValueChangeListener(event -> {
             boolean isDisciple = OrderType.DISCIPLE.equals(event.getValue());
-            building.setRequired(!isDisciple);
-            roomNo.setRequired(!isDisciple);
+            building.setRequiredIndicatorVisible(isDisciple);
+            roomNo.setRequiredIndicatorVisible(isDisciple);
         });
 
         addItemButton.addClickListener(e -> addOrderItem());
@@ -82,7 +89,6 @@ public class OrderForm extends FormLayout {
         orderItemsGrid.addColumn(item -> Optional.ofNullable(item.getProduct()).map(p -> p.getName()).orElse("")).setHeader("Product");
         orderItemsGrid.addColumn(OrderItemDto::getQuantity).setHeader("Quantity");
         orderItemsGrid.addColumn(OrderItemDto::getPrice).setHeader("Price");
-
         orderItemsGrid.addComponentColumn(item -> {
             Button removeButton = new Button("X", e -> removeOrderItem(item));
             removeButton.getStyle().set("color", "red");
@@ -118,7 +124,6 @@ public class OrderForm extends FormLayout {
         Button cancelButton = new Button("Cancel", e -> {
             dialog.close();
         });
-
         dialog.add(new VerticalLayout(productComboBox, quantityField, priceField, ingridients, new HorizontalLayout(saveButton, cancelButton)));
         dialog.open();
     }
