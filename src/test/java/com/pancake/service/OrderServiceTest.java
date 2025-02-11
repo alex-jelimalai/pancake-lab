@@ -105,9 +105,7 @@ class OrderServiceTest {
 
         orderDto.getItems().get(0).setProduct(null);
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            orderService.saveOrder(orderDto);
-        });
+        assertThrows(IllegalArgumentException.class, () -> orderService.saveOrder(orderDto));
     }
 
     @Test

@@ -86,7 +86,7 @@ public class OrderForm extends FormLayout {
 
     private void configureOrderItemsGrid() {
         orderItemsGrid.setColumns();
-        orderItemsGrid.addColumn(item -> Optional.ofNullable(item.getProduct()).map(p -> p.getName()).orElse("")).setHeader("Product");
+        orderItemsGrid.addColumn(item -> Optional.ofNullable(item.getProduct()).map(ProductDto::getName).orElse("")).setHeader("Product");
         orderItemsGrid.addColumn(OrderItemDto::getQuantity).setHeader("Quantity");
         orderItemsGrid.addColumn(OrderItemDto::getPrice).setHeader("Price");
         orderItemsGrid.addComponentColumn(item -> {
@@ -121,9 +121,7 @@ public class OrderForm extends FormLayout {
         });
 
 
-        Button cancelButton = new Button("Cancel", e -> {
-            dialog.close();
-        });
+        Button cancelButton = new Button("Cancel", e -> dialog.close());
         dialog.add(new VerticalLayout(productComboBox, quantityField, priceField, ingridients, new HorizontalLayout(saveButton, cancelButton)));
         dialog.open();
     }
@@ -203,8 +201,8 @@ public class OrderForm extends FormLayout {
         return getEventBus().addListener(eventType, listener);
     }
 
+    @Getter
     public static abstract class OrderFormEvent extends ComponentEvent<OrderForm> {
-        @Getter
         private final OrderDto order;
 
         public OrderFormEvent(OrderForm source, OrderDto order) {
