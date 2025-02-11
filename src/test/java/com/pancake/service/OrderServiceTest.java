@@ -48,13 +48,13 @@ class OrderServiceTest {
         product = new Product("Product1", "Flour, Sugar", "Product details", 10.0);
         product.setId(1L);
 
-        order = new Order(OrderType.DELIVERY, OrderStatus.PENDING, 1, 101);
+        order = new Order(OrderType.DELIVERY, OrderStatus.READY_FOR_PROCESSING, 1, 101);
         order.setId(1L);
 
         orderDto = new OrderDto();
         orderDto.setId(1L);
         orderDto.setOrderType(OrderType.DELIVERY);
-        orderDto.setStatus(OrderStatus.PENDING);
+        orderDto.setStatus(OrderStatus.READY_FOR_PROCESSING);
         orderDto.setBuilding(1);
         orderDto.setRoomNo(101);
 
@@ -91,9 +91,7 @@ class OrderServiceTest {
         when(conversionService.convert(any(Order.class), eq(OrderDto.class))).thenReturn(orderDto);
         when(productRepository.findById(1L)).thenReturn(Optional.of(product));
 
-
         OrderDto result = orderService.saveOrder(orderDto);
-
 
         assertNotNull(result);
         assertEquals(orderDto.getOrderType(), result.getOrderType());
@@ -121,29 +119,25 @@ class OrderServiceTest {
 
     @Test
     void deleteOrder_ShouldNotCallDelete_WhenOrderDoesNotExist() {
-
         when(orderRepository.existsById(1L)).thenReturn(false);
-
-
         orderService.deleteOrder(1L);
-
-
         verify(orderRepository, never()).deleteById(1L);
     }
 
     @Test
-    void findAll_ShouldReturnOrderDtos() {
+    void findBy_ShouldReturnOrderDtos() {
 
-        when(orderRepository.findAll()).thenReturn(List.of(order));
+        List<OrderStatus> statuses = List.of(OrderStatus.READY_FOR_PROCESSING);
+        when(orderRepository.findByStatusIn(statuses)).thenReturn(List.of(order));
         when(conversionService.convert(any(Order.class), eq(OrderDto.class))).thenReturn(orderDto);
 
 
-        List<OrderDto> result = orderService.findAll();
+        List<OrderDto> result = orderService.findBy(statuses);
 
 
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(orderDto.getOrderType(), result.get(0).getOrderType());
-        verify(orderRepository).findAll();
+        verify(orderRepository).findByStatusIn(statuses);
     }
 }

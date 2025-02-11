@@ -1,9 +1,12 @@
 package com.pancake.view;
 
 import com.pancake.dto.OrderDto;
+import com.pancake.model.OrderStatus;
 import com.pancake.service.OrderService;
 import com.pancake.service.ProductService;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -13,17 +16,21 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import java.util.List;
 
-@Route(value = "orders", layout = MainLayout.class)
-@PageTitle("Orders")
-public class ListOrdersView extends VerticalLayout {
+import static com.pancake.util.FormatUtil.DOLLAR_FORMATTER;
+
+
+@Route(value = "disciples-orders", layout = MainLayout.class)
+@PageTitle("Disciples Dashboard")
+public class DisciplesOrdersView extends VerticalLayout {
 
     private final Grid<OrderDto> grid;
     private final OrderService orderService;
     private final TextField filterText = new TextField();
     private final OrderForm orderForm;
 
-    public ListOrdersView(OrderService orderService, ProductService productService) {
+    public DisciplesOrdersView(OrderService orderService, ProductService productService) {
         this.orderService = orderService;
         addClassName("list-view");
         setSizeFull();
@@ -94,7 +101,35 @@ public class ListOrdersView extends VerticalLayout {
 
     private void configureGrid() {
         grid.setSizeFull();
-        grid.setColumns("orderType", "status", "building", "roomNo", "total$");
+        grid.setColumns("orderType", "status", "building", "roomNo");
+        grid.addColumn(c -> DOLLAR_FORMATTER.format(c.getTotal$())).setHeader("Total $");
+
+
+        grid.addComponentColumn(c -> {
+            Button cancelOrderButton = new Button("Cancel", (e) -> {
+                ConfirmDialog dialog = new ConfirmDialog();
+                dialog.setHeader("Confirm Action");
+                dialog.setText("Are you sure you want to cancel the order?");
+                dialog.setCancelable(true);
+                dialog.setConfirmText("Yes");
+                dialog.setCancelText("No");
+                dialog.addConfirmListener(de -> {
+                    orderService.cancelOrder(c);
+                    updateList();
+                });
+                dialog.open();
+            });
+
+            cancelOrderButton.addThemeVariants(ButtonVariant.LUMO_ERROR);
+
+            return new HorizontalLayout(
+                    new Button("Send to Chief", (e) -> {
+                        orderService.markReadyToProcess(c);
+                        updateList();
+                    }),
+                    cancelOrderButton
+            );
+        }).setHeader("");
 
         grid.asSingleSelect().addValueChangeListener(e -> {
             if (e.getValue() != null) {
@@ -112,7 +147,7 @@ public class ListOrdersView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(orderService.findAll());
+        grid.setItems(orderService.findBy(List.of(OrderStatus.NEW)));
     }
 
 

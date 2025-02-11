@@ -36,7 +36,7 @@ class OrderConverterTest {
     void convertOrder() {
         Order order = Order.builder()
                 .orderType(OrderType.DISCIPLE)
-                .status(OrderStatus.PENDING)
+                .status(OrderStatus.READY_FOR_PROCESSING)
                 .building(5)
                 .roomNo(102)
                 .build();

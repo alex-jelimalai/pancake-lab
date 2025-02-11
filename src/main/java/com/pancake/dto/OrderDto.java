@@ -16,7 +16,7 @@ public class OrderDto {
 
     private OrderType orderType;
 
-    private OrderStatus status;
+    private OrderStatus status = OrderStatus.NEW;
 
     private Integer building;
 

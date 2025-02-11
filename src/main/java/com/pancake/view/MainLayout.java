@@ -33,9 +33,11 @@ public class MainLayout extends AppLayout {
     private void createDrawer() {
         RouterLink productsLink = new RouterLink("Products", ListProductsView.class);
         productsLink.setHighlightCondition(HighlightConditions.sameLocation());
-        RouterLink ordersLink = new RouterLink("Orders", ListOrdersView.class);
+        RouterLink ordersLink = new RouterLink("Disciple Orders", DisciplesOrdersView.class);
         ordersLink.setHighlightCondition(HighlightConditions.sameLocation());
-        addToDrawer(new VerticalLayout(productsLink, ordersLink));
+        RouterLink chiefLink = new RouterLink("Chief Orders", ChiefOrdersView.class);
+        chiefLink.setHighlightCondition(HighlightConditions.sameLocation());
+        addToDrawer(new VerticalLayout(productsLink, ordersLink, chiefLink));
     }
 
 }

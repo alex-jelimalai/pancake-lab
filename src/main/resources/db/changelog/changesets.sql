@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset Alex:create.product.orders.12
+--changeset Alex:create.product.orders.14
 drop table if exists product;
 drop table if exists orders;
 drop table if exists order_item;
@@ -19,7 +19,7 @@ create table orders
 (
     id         INTEGER PRIMARY KEY AUTOINCREMENT,
     order_type varchar(50) not null check (order_type in ('DISCIPLE', 'DELIVERY', 'CHIEF')),
-    status     varchar(50) not null check (status in ('PENDING', 'PROCESSING', 'COMPLETED', 'CANCELED')),
+    status     varchar(50) not null check (status in ('NEW', 'PROCESSING', 'COMPLETED', 'DELIVERED', 'READY_FOR_PROCESSING','CANCELED')),
     building   int,
     room_no    int
 );
@@ -33,7 +33,7 @@ create table order_item
     price      double precision not null
 );
 
---changeset Alex:product.data.12
+--changeset Alex:product.data.14
 delete
 from product;
 INSERT INTO product (name, ingridients, details, price)
@@ -57,21 +57,23 @@ VALUES ('Dark Chocolate Pancakes',
         'Prepare batter, fold in milk chocolate and crushed hazelnuts, cook on a skillet.',
         8.79);
 
---changeset Alex:orders.mock.data.12
-delete from order_item;
-delete from orders;
+--changeset Alex:orders.mock.data.14
+delete
+from order_item;
+delete
+from orders;
 
 INSERT INTO orders (id, order_type, status, building, room_no)
-VALUES (1, 'DISCIPLE', 'PENDING', 3, 205),
-       (2, 'DELIVERY', 'PROCESSING', NULL, NULL),
+VALUES (1, 'DISCIPLE', 'NEW', 3, 205),
+       (2, 'DELIVERY', 'READY_FOR_PROCESSING', NULL, NULL),
        (3, 'CHIEF', 'COMPLETED', NULL, NULL),
        (4, 'DISCIPLE', 'CANCELED', 2, 101),
-       (5, 'DELIVERY', 'PENDING', NULL, NULL),
-       (6, 'CHIEF', 'PROCESSING', NULL, NULL),
+       (5, 'DELIVERY', 'NEW', NULL, NULL),
+       (6, 'CHIEF', 'READY_FOR_PROCESSING', NULL, NULL),
        (7, 'DISCIPLE', 'COMPLETED', 4, 308),
-       (8, 'DELIVERY', 'PENDING', NULL, NULL),
+       (8, 'DELIVERY', 'READY_FOR_PROCESSING', NULL, NULL),
        (9, 'CHIEF', 'PROCESSING', NULL, NULL),
-       (10, 'DISCIPLE', 'PENDING', 1, 112);
+       (10, 'DISCIPLE', 'NEW', 1, 112);
 
 INSERT INTO order_item (id, product_id, order_id, quantity, price)
 VALUES (1, 1, 1, 2, 15.98),  -- Order 1 has 2 Dark Chocolate Pancakes

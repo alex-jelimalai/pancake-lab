@@ -34,7 +34,6 @@ public class OrderForm extends FormLayout {
     private final ComboBox<OrderStatus> status = new ComboBox<>("Order Status");
 
     private final Button save = new Button("Save");
-    private final Button delete = new Button("Delete");
     private final Button cancel = new Button("Cancel");
 
     private final Grid<OrderItemDto> orderItemsGrid = new Grid<>(OrderItemDto.class);
@@ -48,6 +47,7 @@ public class OrderForm extends FormLayout {
         this.productService = productService;
         addClassName("order-form");
 
+        status.setReadOnly(true);
         configureForm();
         configureOrderItemsGrid();
 
@@ -181,18 +181,16 @@ public class OrderForm extends FormLayout {
 
     private Component createButtonLayout() {
         save.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        delete.addThemeVariants(ButtonVariant.LUMO_ERROR);
         cancel.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
 
         save.addClickShortcut(Key.ENTER);
         cancel.addClickShortcut(Key.ESCAPE);
 
         save.addClickListener(e -> validateAndSave());
-        delete.addClickListener(e -> fireEvent(new DeleteOrderEvent(this, binder.getBean())));
         cancel.addClickListener(e -> fireEvent(new CancelOrderEvent(this, binder.getBean())));
 
         binder.addStatusChangeListener(ev -> save.setEnabled(binder.isValid()));
-        return new HorizontalLayout(save, delete, cancel);
+        return new HorizontalLayout(save, cancel);
     }
 
     private void validateAndSave() {
